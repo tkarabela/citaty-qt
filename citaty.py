@@ -11,9 +11,9 @@ import random
 import traceback
 import os.path
 
-from PySide.QtGui import QApplication
-from PySide.QtGui import QMainWindow, QMessageBox
-from PySide.QtCore import QSettings
+from PyQt4.QtGui import QApplication
+from PyQt4.QtGui import QMainWindow, QMessageBox
+from PyQt4.QtCore import QSettings
 
 from ui_mainwindow import Ui_MainWindow
 
@@ -69,21 +69,21 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         except Exception as exc:
             QMessageBox.critical(self, "Chyba", traceback.format_exc(exc))
 
-        self.label.setText(self.label.text() % len(self.quotes))
-        random.seed(self.seed)
+        self.label.setText(type("")(self.label.text()) % len(self.quotes))
+        random.seed(self.seed())
         random.shuffle(self.quotes)
 
-    @property
-    def i(self): return int(self.settings.value("i", 0))
+    def i(self):
+        return int(self.settings.value("i", 0))
 
-    @i.setter
-    def i(self, x): self.settings.setValue("i", x)
+    def setI(self, x):
+        self.settings.setValue("i", x)
 
-    @property
-    def seed(self): return float(self.settings.value("seed", time.time()))
+    def seed(self):
+        return float(self.settings.value("seed", time.time()))
 
-    @seed.setter
-    def seed(self, x): self.settings.setValue("seed", x)
+    def setSeed(self, x):
+        self.settings.setValue("seed", x)
 
     def readQuoteFile(self):
         touch(self.getQuoteFilePath())
@@ -102,15 +102,15 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             QMessageBox.warning(self, "Žádné citáty", "Soubor s citáty je prázdný!\n\n" + self.getQuoteFilePath())
             return
 
-        if self.i >= len(self.quotes):
-            self.i = 0
-            self.seed = time.time()
-            random.seed(self.seed)
+        if self.i() >= len(self.quotes):
+            self.setI(0)
+            self.setSeed(time.time())
+            random.seed(self.seed())
             random.shuffle(self.quotes)
 
-        quote = self.quotes[self.i]
+        quote = self.quotes[self.i()]
         self.textEdit.setText(TEMPLATE % quote)
-        self.i += 1
+        self.setI(self.i() + 1)
 
 # ----------------------------------------------------------------------------------------------------------------------
 
